@@ -1,0 +1,139 @@
+Newly created/modified:
+package org.example.service;
+
+import io.restassured.response.Response;
+import org.example.service.uritemplate.UriTemplate;
+
+public class UserService extends CommonService {
+
+    private UserService() {
+    }
+
+    ;//default constructor
+    private static UserService instance;
+
+    //singleton; saves, creates
+    public static UserService getInstance() {
+        if (instance == null) {
+            instance = new UserService();
+        }
+        return instance;
+    }
+
+    public Response getRequest(UriTemplate uri) {
+        return super.getRequest(uri.getUri());
+    }
+
+    public Response getRequest(UriTemplate uri, int id) {
+        return super.getRequest(uri.getUri(id));
+    }
+
+    public Response postRequest(UriTemplate uri, Object body) {
+        return super.postRequest(uri.getUri(), body);
+    }
+
+    public void deleteRequest(UriTemplate uri, int id) {
+        super.deleteRequest(uri.getUri(id));
+    }
+}
+
+==================================================================================================================
+package org.example.service;
+
+import io.restassured.response.Response;
+import org.example.service.uritemplate.UriTemplate;
+
+public class UserService extends CommonService {
+
+    private UserService() {
+    }
+
+    ;//default constructor
+    private static UserService instance;
+
+    //singleton; saves, creates
+    public static UserService getInstance() {
+        if (instance == null) {
+            instance = new UserService();
+        }
+        return instance;
+    }
+
+    public Response getRequest(UriTemplate uri) {
+        return super.getRequest(uri.getUri());
+    }
+
+    public Response getRequest(UriTemplate uri, int id) {
+        return super.getRequest(uri.getUri(id));
+    }
+
+    public Response postRequest(UriTemplate uri, Object body) {
+        return super.postRequest(uri.getUri(), body);
+    }
+
+    public void deleteRequest(UriTemplate uri, int id) {
+        super.deleteRequest(uri.getUri(id));
+    }
+}
+
+===========================================================================
+package org.example.steps;
+
+import org.example.entities.User;
+import org.example.service.UserService;
+
+import java.util.List;
+
+import static org.example.service.uritemplate.UserServiceUri.USERS;
+
+public class UserServiceSteps {
+
+    private static final UserService USER_SERVICE = UserService.getInstance();
+
+    public static List<User> getAllUsers(){
+        return USER_SERVICE.getRequest(USERS).jsonPath().getList("", User.class);
+    }
+
+    public static User createUser(User expectedUser) {
+        return USER_SERVICE.postRequest(USERS, expectedUser).as(User.class);
+    }
+}
+
+========================================================================================
+package org.example.userstest;
+
+import org.example.entities.User;
+import org.example.steps.UserServiceSteps;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.util.List;
+import java.util.Random;
+
+public class UserServiceTest {
+
+
+    @Test
+    public void getAllUsersTest() {
+        List<User> users = UserServiceSteps.getAllUsers();
+        Assert.assertEquals(users.size(), 10, "Expected not equal to actual");
+    }
+
+    @Test
+    public void createUserTest() {
+        User expectedUser = createUser();
+        User actualUser = UserServiceSteps.createUser(expectedUser);
+        Assert.assertEquals(actualUser.getName(), expectedUser.getName(), "Expected user does not have the expected name");
+    }
+
+    private User createUser() {
+        Random random = new Random();
+        return new User()
+                .setName("test" + random.nextInt())
+                .setEmail("testEmail" + random.nextInt() + "@gmail.com")
+                .setGender("Male")
+                .setStatus("active");
+    }
+}
+
+
